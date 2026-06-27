@@ -6,9 +6,9 @@ import {
 } from "lucide-react";
 
 const LIVE_STATS = [
-  { label: "Players Online", value: "24,819", sub: "right now" },
-  { label: "Paid Out Today", value: "$4.2M", sub: "in crypto" },
-  { label: "Total Bets", value: "1.8B+", sub: "since launch" },
+  { label: "Players Online", value: "1,847", sub: "right now" },
+  { label: "Paid Out Today", value: "$284K", sub: "in crypto" },
+  { label: "Total Bets", value: "8.3M+", sub: "since launch" },
   { label: "Avg. Payout", value: "98.2%", sub: "RTP across games" },
 ];
 
@@ -95,7 +95,7 @@ export default function Landing() {
           <div className="hidden md:flex items-center gap-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium text-xs border border-emerald-500/20">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              24,819 online now
+              1,847 online now
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-2 mb-4 text-white/80 text-sm font-medium">
             <TrendingUp className="h-4 w-4" />
-            Fastest growing crypto casino of 2026 — 240,000+ registered players
+            Fastest growing crypto casino of 2026 — 52,000+ registered players
           </div>
           <h2 className="text-3xl lg:text-5xl font-extrabold mb-4 tracking-tight">Ready to Join the Revolution?</h2>
           <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
