@@ -33,7 +33,7 @@ export default function DepositPage() {
       <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-500">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Deposit</h1>
-          <p className="text-muted-foreground mt-1">Add funds to your CryptoStake account.</p>
+          <p className="text-muted-foreground mt-1">Add funds to your EnvyCasino account.</p>
         </div>
 
         <Tabs defaultValue="BTC" className="w-full">

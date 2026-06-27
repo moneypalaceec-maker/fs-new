@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "_rEHe7lnMKxlrZVJ9kMyB"
+uri = "file://artifacts/casino/public/logo.png"
+type = "image"
+title = "envy-casino-logo"

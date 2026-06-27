@@ -13,7 +13,7 @@ export default function Landing() {
               <Gamepad2 className="text-white h-6 w-6" />
             </div>
             <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-              CryptoStake
+              EnvyCasino
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -124,7 +124,7 @@ export default function Landing() {
       
       {/* Footer */}
       <footer className="border-t border-white/5 py-12 bg-black/50 text-center text-sm text-muted-foreground">
-        <p>© 2024 CryptoStake Casino. All rights reserved.</p>
+        <p>© 2024 EnvyCasino. All rights reserved.</p>
         <p className="mt-2 text-xs">Gambling can be addictive. Play responsibly.</p>
       </footer>
     </div>

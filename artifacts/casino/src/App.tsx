@@ -51,19 +51,19 @@ const clerkAppearance = {
   options: {
     logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl: `${window.location.origin}${basePath}/logo.png`,
   },
   variables: {
-    colorPrimary: "hsl(271 76% 53%)",
-    colorForeground: "hsl(260 100% 97%)",
-    colorMutedForeground: "hsl(260 20% 70%)",
-    colorDanger: "hsl(350 100% 60%)",
-    colorBackground: "hsl(259 58% 8%)",
-    colorInput: "hsl(260 40% 15%)",
-    colorInputForeground: "hsl(260 100% 97%)",
-    colorNeutral: "hsl(260 40% 15%)",
+    colorPrimary: "hsl(217 91% 60%)",
+    colorForeground: "hsl(222 47% 11%)",
+    colorMutedForeground: "hsl(220 9% 46%)",
+    colorDanger: "hsl(0 84% 60%)",
+    colorBackground: "hsl(0 0% 100%)",
+    colorInput: "hsl(220 13% 96%)",
+    colorInputForeground: "hsl(222 47% 11%)",
+    colorNeutral: "hsl(220 13% 91%)",
     fontFamily: "Inter, sans-serif",
-    borderRadius: "0.75rem",
+    borderRadius: "0.625rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
@@ -169,14 +169,14 @@ function ClerkProviderWithRoutes() {
       localization={{
         signIn: {
           start: {
-            title: "Welcome to CryptoStake",
-            subtitle: "Sign in to access the VIP lounge",
+            title: "Welcome to EnvyCasino",
+            subtitle: "Sign in to your account",
           },
         },
         signUp: {
           start: {
-            title: "Join CryptoStake",
-            subtitle: "Enter the high-stakes arena",
+            title: "Join EnvyCasino",
+            subtitle: "Create your account and start playing",
           },
         },
       }}
@@ -238,12 +238,8 @@ function ClerkProviderWithRoutes() {
 }
 
 function App() {
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
-
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="envy-ui-theme">
       <WouterRouter base={basePath}>
         <TooltipProvider>
           <ClerkProviderWithRoutes />
