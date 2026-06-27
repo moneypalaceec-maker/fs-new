@@ -12,12 +12,10 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
-app.use(
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-  });
-);
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
