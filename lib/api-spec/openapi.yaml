@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CryptoStake Casino API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: users
+    description: User profile management
+  - name: wallet
+    description: Wallet and balances
+  - name: transactions
+    description: Transaction history
+  - name: kyc
+    description: Identity verification
+  - name: games
+    description: Casino games
+  - name: admin
+    description: Admin panel
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +35,812 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Users ───────────────────────────────────────────────────────────────────
+  /users/me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/me/stats:
+    get:
+      operationId: getMyStats
+      tags: [users]
+      summary: Get lifetime stats for current user
+      responses:
+        "200":
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserStats"
+
+  /users/me/activity:
+    get:
+      operationId: getMyActivity
+      tags: [users]
+      summary: Get recent activity feed for current user
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  # ─── Wallet ──────────────────────────────────────────────────────────────────
+  /wallet:
+    get:
+      operationId: getWallet
+      tags: [wallet]
+      summary: Get wallet balances for current user
+      responses:
+        "200":
+          description: Wallet data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+
+  /wallet/withdraw:
+    post:
+      operationId: requestWithdrawal
+      tags: [wallet]
+      summary: Request a withdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalRequest"
+      responses:
+        "201":
+          description: Withdrawal requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          description: Bad request
+
+  # ─── Transactions ─────────────────────────────────────────────────────────────
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List transactions for current user
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [deposit, withdrawal, bet, win, loss]
+        - name: currency
+          in: query
+          schema:
+            type: string
+            enum: [ETH, BTC, SOL, USDC]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionPage"
+
+  /transactions/{id}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get a single transaction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "404":
+          description: Not found
+
+  # ─── KYC / Identity Verification ─────────────────────────────────────────────
+  /kyc:
+    get:
+      operationId: getKyc
+      tags: [kyc]
+      summary: Get KYC status for current user
+      responses:
+        "200":
+          description: KYC data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+    post:
+      operationId: submitKyc
+      tags: [kyc]
+      summary: Submit KYC information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KycInput"
+      responses:
+        "201":
+          description: KYC submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+
+  # ─── Games ───────────────────────────────────────────────────────────────────
+  /games/dice:
+    post:
+      operationId: playDice
+      tags: [games]
+      summary: Play a dice game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiceInput"
+      responses:
+        "200":
+          description: Dice result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiceResult"
+
+  /games/coinflip:
+    post:
+      operationId: playCoinflip
+      tags: [games]
+      summary: Play a coin flip game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoinflipInput"
+      responses:
+        "200":
+          description: Coin flip result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoinflipResult"
+
+  /games/blackjack/start:
+    post:
+      operationId: startBlackjack
+      tags: [games]
+      summary: Start a new blackjack hand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlackjackStart"
+      responses:
+        "200":
+          description: Blackjack hand started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlackjackState"
+
+  /games/blackjack/{sessionId}/action:
+    post:
+      operationId: blackjackAction
+      tags: [games]
+      summary: Perform a blackjack action (hit, stand, double)
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlackjackAction"
+      responses:
+        "200":
+          description: Updated blackjack state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlackjackState"
+
+  /games/slots:
+    post:
+      operationId: playSlots
+      tags: [games]
+      summary: Spin the slot machine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlotsInput"
+      responses:
+        "200":
+          description: Slots result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SlotsResult"
+
+  /games/history:
+    get:
+      operationId: getGameHistory
+      tags: [games]
+      summary: Get recent game history for current user
+      parameters:
+        - name: game
+          in: query
+          schema:
+            type: string
+            enum: [dice, coinflip, blackjack, slots]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Game history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameHistoryItem"
+
+  # ─── Admin ───────────────────────────────────────────────────────────────────
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get platform-wide analytics
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      summary: List all users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserPage"
+
+  /admin/users/{id}:
+    get:
+      operationId: getAdminUser
+      tags: [admin]
+      summary: Get a user by ID (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+    patch:
+      operationId: updateAdminUser
+      tags: [admin]
+      summary: Update a user (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /admin/kyc:
+    get:
+      operationId: listAdminKyc
+      tags: [admin]
+      summary: List KYC submissions pending review
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: KYC submissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminKycPage"
+
+  /admin/kyc/{id}:
+    patch:
+      operationId: reviewKyc
+      tags: [admin]
+      summary: Approve or reject a KYC submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KycReview"
+      responses:
+        "200":
+          description: Updated KYC record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KycRecord"
+
+  /admin/transactions:
+    get:
+      operationId: listAdminTransactions
+      tags: [admin]
+      summary: List all transactions (admin)
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [deposit, withdrawal, bet, win, loss]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Paginated transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionPage"
+
+  /admin/game-analytics:
+    get:
+      operationId: getGameAnalytics
+      tags: [admin]
+      summary: Get game analytics breakdown
+      responses:
+        "200":
+          description: Game analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameAnalytics"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── User ────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, clerkId, username, email, createdAt, kycStatus, isAdmin]
+      properties:
+        id:          { type: integer }
+        clerkId:     { type: string }
+        username:    { type: string }
+        email:       { type: string }
+        createdAt:   { type: string }
+        kycStatus:   { type: string, enum: [none, pending, approved, rejected] }
+        isAdmin:     { type: boolean }
+        avatarUrl:   { type: ["string", "null"] }
+
+    UserUpdate:
+      type: object
+      properties:
+        username:  { type: string }
+        avatarUrl: { type: string }
+
+    UserStats:
+      type: object
+      required: [totalDeposits, totalWithdrawals, totalWagers, totalWins, totalLosses, netProfit, gamesPlayed, winRate]
+      properties:
+        totalDeposits:    { type: string }
+        totalWithdrawals: { type: string }
+        totalWagers:      { type: string }
+        totalWins:        { type: string }
+        totalLosses:      { type: string }
+        netProfit:        { type: string }
+        gamesPlayed:      { type: integer }
+        winRate:          { type: number }
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, amount, currency, createdAt]
+      properties:
+        id:          { type: integer }
+        type:        { type: string }
+        description: { type: string }
+        amount:      { type: string }
+        currency:    { type: string }
+        createdAt:   { type: string }
+
+    # ─── Wallet ──────────────────────────────────────────────────────────────
+    Wallet:
+      type: object
+      required: [balances]
+      properties:
+        balances:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletBalance"
+
+    WalletBalance:
+      type: object
+      required: [currency, balance, depositAddress, network]
+      properties:
+        currency:       { type: string }
+        balance:        { type: string }
+        depositAddress: { type: string }
+        network:        { type: string }
+
+    WithdrawalRequest:
+      type: object
+      required: [currency, amount, toAddress]
+      properties:
+        currency:  { type: string, enum: [ETH, BTC, SOL, USDC] }
+        amount:    { type: string }
+        toAddress: { type: string }
+
+    # ─── Transactions ────────────────────────────────────────────────────────
+    Transaction:
+      type: object
+      required: [id, userId, type, currency, amount, status, createdAt]
+      properties:
+        id:          { type: integer }
+        userId:      { type: integer }
+        type:        { type: string, enum: [deposit, withdrawal, bet, win, loss] }
+        currency:    { type: string }
+        amount:      { type: string }
+        status:      { type: string, enum: [pending, confirmed, failed] }
+        txHash:      { type: ["string", "null"] }
+        toAddress:   { type: ["string", "null"] }
+        gameType:    { type: ["string", "null"] }
+        createdAt:   { type: string }
+
+    TransactionPage:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        total: { type: integer }
+        page:  { type: integer }
+        limit: { type: integer }
+
+    # ─── KYC ─────────────────────────────────────────────────────────────────
+    KycRecord:
+      type: object
+      required: [id, userId, status, createdAt]
+      properties:
+        id:          { type: integer }
+        userId:      { type: integer }
+        status:      { type: string, enum: [pending, approved, rejected] }
+        fullName:    { type: ["string", "null"] }
+        dateOfBirth: { type: ["string", "null"] }
+        country:     { type: ["string", "null"] }
+        rejectionReason: { type: ["string", "null"] }
+        createdAt:   { type: string }
+        updatedAt:   { type: string }
+
+    KycInput:
+      type: object
+      required: [fullName, dateOfBirth, country]
+      properties:
+        fullName:    { type: string }
+        dateOfBirth: { type: string }
+        country:     { type: string }
+        idDocumentUrl: { type: string }
+        selfieUrl:   { type: string }
+
+    KycReview:
+      type: object
+      required: [status]
+      properties:
+        status:          { type: string, enum: [approved, rejected] }
+        rejectionReason: { type: string }
+
+    # ─── Games ───────────────────────────────────────────────────────────────
+    DiceInput:
+      type: object
+      required: [wager, currency, winChance, isOver]
+      properties:
+        wager:      { type: string }
+        currency:   { type: string, enum: [ETH, BTC, SOL, USDC] }
+        winChance:  { type: number }
+        isOver:     { type: boolean }
+
+    DiceResult:
+      type: object
+      required: [roll, winChance, isOver, won, payout, newBalance, transactionId]
+      properties:
+        roll:          { type: number }
+        winChance:     { type: number }
+        isOver:        { type: boolean }
+        won:           { type: boolean }
+        payout:        { type: string }
+        newBalance:    { type: string }
+        transactionId: { type: integer }
+
+    CoinflipInput:
+      type: object
+      required: [wager, currency, choice]
+      properties:
+        wager:    { type: string }
+        currency: { type: string, enum: [ETH, BTC, SOL, USDC] }
+        choice:   { type: string, enum: [heads, tails] }
+
+    CoinflipResult:
+      type: object
+      required: [outcome, won, payout, newBalance, transactionId]
+      properties:
+        outcome:       { type: string, enum: [heads, tails] }
+        won:           { type: boolean }
+        payout:        { type: string }
+        newBalance:    { type: string }
+        transactionId: { type: integer }
+
+    BlackjackStart:
+      type: object
+      required: [wager, currency]
+      properties:
+        wager:    { type: string }
+        currency: { type: string, enum: [ETH, BTC, SOL, USDC] }
+
+    BlackjackState:
+      type: object
+      required: [sessionId, playerCards, dealerCards, playerScore, dealerScore, status, wager, currency]
+      properties:
+        sessionId:    { type: string }
+        playerCards:  { type: array, items: { type: string } }
+        dealerCards:  { type: array, items: { type: string } }
+        playerScore:  { type: integer }
+        dealerScore:  { type: integer }
+        status:       { type: string, enum: [playing, player_bust, dealer_bust, player_win, dealer_win, push, blackjack] }
+        wager:        { type: string }
+        currency:     { type: string }
+        payout:       { type: ["string", "null"] }
+        transactionId: { type: ["integer", "null"] }
+
+    BlackjackAction:
+      type: object
+      required: [action]
+      properties:
+        action: { type: string, enum: [hit, stand, double] }
+
+    SlotsInput:
+      type: object
+      required: [wager, currency]
+      properties:
+        wager:    { type: string }
+        currency: { type: string, enum: [ETH, BTC, SOL, USDC] }
+
+    SlotsResult:
+      type: object
+      required: [reels, won, multiplier, payout, newBalance, transactionId]
+      properties:
+        reels:         { type: array, items: { type: string }, minItems: 3, maxItems: 3 }
+        won:           { type: boolean }
+        multiplier:    { type: number }
+        payout:        { type: string }
+        newBalance:    { type: string }
+        transactionId: { type: integer }
+
+    GameHistoryItem:
+      type: object
+      required: [id, gameType, wager, currency, won, payout, createdAt]
+      properties:
+        id:          { type: integer }
+        gameType:    { type: string }
+        wager:       { type: string }
+        currency:    { type: string }
+        won:         { type: boolean }
+        payout:      { type: string }
+        createdAt:   { type: string }
+
+    # ─── Admin ───────────────────────────────────────────────────────────────
+    AdminStats:
+      type: object
+      required: [totalUsers, totalDeposits, totalWithdrawals, totalWagers, houseEdge, activeToday, pendingKyc, pendingWithdrawals]
+      properties:
+        totalUsers:          { type: integer }
+        totalDeposits:       { type: string }
+        totalWithdrawals:    { type: string }
+        totalWagers:         { type: string }
+        houseEdge:           { type: string }
+        activeToday:         { type: integer }
+        pendingKyc:          { type: integer }
+        pendingWithdrawals:  { type: integer }
+
+    AdminUser:
+      type: object
+      required: [id, clerkId, username, email, createdAt, kycStatus, isAdmin, isBanned]
+      properties:
+        id:          { type: integer }
+        clerkId:     { type: string }
+        username:    { type: string }
+        email:       { type: string }
+        createdAt:   { type: string }
+        kycStatus:   { type: string }
+        isAdmin:     { type: boolean }
+        isBanned:    { type: boolean }
+        totalWagers: { type: string }
+        totalDeposits: { type: string }
+
+    AdminUserUpdate:
+      type: object
+      properties:
+        isAdmin:  { type: boolean }
+        isBanned: { type: boolean }
+
+    AdminUserPage:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        total: { type: integer }
+        page:  { type: integer }
+        limit: { type: integer }
+
+    AdminKycPage:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/KycRecord"
+        total: { type: integer }
+        page:  { type: integer }
+        limit: { type: integer }
+
+    GameAnalytics:
+      type: object
+      required: [byGame]
+      properties:
+        byGame:
+          type: array
+          items:
+            $ref: "#/components/schemas/GameAnalyticsItem"
+
+    GameAnalyticsItem:
+      type: object
+      required: [gameType, totalBets, totalWagered, totalPaidOut, houseProfit, winRate]
+      properties:
+        gameType:      { type: string }
+        totalBets:     { type: integer }
+        totalWagered:  { type: string }
+        totalPaidOut:  { type: string }
+        houseProfit:   { type: string }
+        winRate:       { type: number }

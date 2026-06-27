@@ -1,0 +1,324 @@
+# Base44 Prompt – Modern Online Crypto Casino
+
+Create a modern, responsive, minimalist online crypto casino web application with a premium user experience, clean architecture, and production-quality design. The application should be fully responsive across desktop and mobile devices while maintaining fast performance and intuitive navigation.
+
+## Design Requirements
+
+* Modern dark theme with subtle gradients and glassmorphism
+* Purple, blue, and cyan accent colors
+* Rounded cards with soft shadows
+* Smooth page transitions and animations
+* Minimalist interface inspired by modern crypto dashboards
+* Clean sans-serif typography
+* Responsive layout optimized for desktop, tablet, and mobile
+* Fast loading and modular architecture
+
+---
+
+# Authentication
+
+Create a complete authentication system including:
+
+* Login page
+* Registration page
+* Google Sign-In integration
+* Email verification
+* Forgot password functionality
+* Password reset
+* Secure session management
+* Logout functionality
+
+Registration fields:
+
+* Username
+* Email
+* Password
+* Confirm Password
+
+---
+
+# User Dashboard
+
+Display the following information:
+
+* Username
+* User ID
+* Account creation date
+* Verification status
+* Wallet balances
+* Total deposits
+* Total withdrawals
+* Total wagers
+* Total wins
+* Total losses
+* Lifetime statistics
+* Recent activity
+
+---
+
+# Identity Verification
+
+Require identity verification before allowing deposits or withdrawals.
+
+Collect:
+
+* Full name
+* Date of birth
+* Country
+* Government-issued ID upload
+* Selfie verification
+
+Display verification status as:
+
+* Pending
+* Approved
+* Rejected
+
+Do not include social verification.
+
+---
+
+# Wallet
+
+Create a dedicated wallet page supporting multiple cryptocurrencies.
+
+Supported assets:
+
+* Ethereum (ETH)
+* Bitcoin (BTC)
+* Solana (SOL)
+* USD Coin (USDC)
+
+Display:
+
+* Current balances
+* Deposit addresses
+* QR codes
+* Deposit history
+* Withdrawal history
+* Pending transactions
+* Transaction confirmations
+
+---
+
+# Deposit Page
+
+Create individual deposit cards for each supported cryptocurrency.
+
+## Ethereum
+
+Address:
+
+0x7fA636B8E805D3EA4765c2fe79C4D43cA08D5d8b
+
+Network:
+
+Ethereum
+
+---
+
+## Bitcoin
+
+Address:
+
+bc1qjzlpuqxh6lvwxux65uqpzue5nh2yllym5xprey
+
+Network:
+
+Bitcoin
+
+---
+
+## Solana
+
+Address:
+
+AK1W2vSHMsZhLLnztqskAHzNhu3EHKoxYkuTui2yr9fX
+
+Network:
+
+Solana
+
+---
+
+## USDC
+
+Address:
+
+AK1W2vSHMsZhLLnztqskAHzNhu3EHKoxYkuTui2yr9fX
+
+Network:
+
+Solana
+
+Each deposit card should include:
+
+* QR code
+* Copy address button
+* Deposit instructions
+* Confirmation status
+* Recent deposits
+
+---
+
+# Transaction History
+
+Create a searchable history page including:
+
+* Deposits
+* Withdrawals
+* Bets
+* Wins
+* Losses
+* Currency used
+* Timestamp
+* Transaction ID
+* Status
+* Filters
+* Pagination
+
+---
+
+# Games
+
+Create the following house games with polished animations and modern interfaces.
+
+## Dice
+
+Features:
+
+* Adjustable wager
+* Adjustable win chance
+* Animated roll
+* Instant results
+* Statistics
+* Bet history
+
+---
+
+## Coin Flip
+
+Features:
+
+* Heads or tails selection
+* Animated coin flip
+* Adjustable wager
+* Result history
+
+---
+
+## Blackjack
+
+Features:
+
+* Single-player gameplay
+* Hit
+* Stand
+* Double Down
+* Optional Split
+* Dealer AI
+* Animated cards
+* Adjustable wagers
+
+---
+
+## Slots
+
+Create a simple modern three-reel slot machine.
+
+Features:
+
+* Animated reels
+* Clean symbol artwork
+* Winning paylines
+* Adjustable wager
+* Auto spin
+* Spin history
+* Responsive animations
+
+---
+
+# Admin Dashboard
+
+Create an administrator panel including:
+
+* User management
+* Identity verification approvals
+* Deposit monitoring
+* Withdrawal monitoring
+* Transaction logs
+* Wallet monitoring
+* Platform analytics
+* Game analytics
+* User statistics
+* Maintenance mode
+* System health dashboard
+
+---
+
+# Security
+
+Implement:
+
+* JWT authentication
+* Password hashing
+* CSRF protection
+* Rate limiting
+* Input validation
+* SQL injection protection
+* Cross-site scripting protection
+* Secure cookies
+* Environment variable configuration
+* Audit logging
+
+---
+
+# Technology Stack
+
+Frontend:
+
+* React
+* TypeScript
+* Tailwind CSS
+
+Backend:
+
+* Node.js
+* Express
+
+Database:
+
+* PostgreSQL
+
+ORM:
+
+* Prisma
+
+Authentication:
+
+* JWT
+* Google OAuth
+
+---
+
+# Additional Features
+
+* Responsive navigation
+* Mobile sidebar
+* User profile editing
+* Account settings
+* Toast notifications
+* Loading animations
+* Error handling
+* Search functionality
+* Pagination
+* Copy-to-clipboard buttons
+* QR code generation
+* Modular components
+* REST API architecture
+* Clean folder structure
+* Optimized performance
+* Professional UI/UX
+* Smooth transitions and animations
+
+The finished application should have the appearance and usability of a polished, modern crypto gaming platform with a premium dashboard experience, intuitive navigation, secure account management, multi-currency wallet support, comprehensive transaction tracking, and responsive gameplay across all supported devices.

@@ -1,0 +1,1 @@
+- [CryptoStake Casino stack](cryptostake-casino.md) — key patterns and pitfalls for this project's full-stack casino app
