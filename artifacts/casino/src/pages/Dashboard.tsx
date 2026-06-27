@@ -123,7 +123,7 @@ export default function Dashboard() {
                         )}>
                           {item.type === 'deposit' || item.type === 'win' ? <ArrowDownRight className="h-5 w-5" /> : 
                            item.type === 'withdrawal' || item.type === 'loss' ? <ArrowUpRight className="h-5 w-5" /> :
-                           <Gamepad2 className="h-5 w-5" />}
+                           <Gamepad className="h-5 w-5" />}
                         </div>
                         <div>
                           <p className="font-medium text-sm">{item.description}</p>
