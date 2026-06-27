@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useState } from "react";
-import { usePlayDice, getGetWalletQueryKey, getGetMyStatsQueryKey } from "@workspace/api-client-react";
+import { usePlayDice, getGetWalletQueryKey, getGetMyStatsQueryKey, useGetWallet } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Dices } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PlayerBalance from "@/components/PlayerBalance";
 
 export default function DiceGame() {
   const [wager, setWager] = useState("10");
@@ -18,6 +19,7 @@ export default function DiceGame() {
   const [isOver, setIsOver] = useState(true);
   const [lastRoll, setLastRoll] = useState<number | null>(null);
   const [isRolling, setIsRolling] = useState(false);
+  const { data: wallet, isLoading: isLoadingWallet } = useGetWallet();
 
   const playDice = usePlayDice();
   const queryClient = useQueryClient();
@@ -66,6 +68,8 @@ export default function DiceGame() {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+        <PlayerBalance wallet={wallet} isLoading={isLoadingWallet} compact />
+
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dice</h1>
           <p className="text-muted-foreground mt-1">Roll the dice to hit your target.</p>

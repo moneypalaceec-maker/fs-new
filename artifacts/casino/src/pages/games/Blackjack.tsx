@@ -5,6 +5,7 @@ import {
   useBlackjackAction,
   getGetWalletQueryKey,
   getGetMyStatsQueryKey,
+  useGetWallet,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PlayerBalance from "@/components/PlayerBalance";
 
 export default function BlackjackGame() {
   const [wager, setWager] = useState("10");
@@ -27,6 +29,7 @@ export default function BlackjackGame() {
     "USDC",
   );
   const [gameState, setGameState] = useState<any>(null); // Type BlackjackState
+  const { data: wallet, isLoading: isLoadingWallet } = useGetWallet();
 
   const startBlackjack = useStartBlackjack();
   const blackjackAction = useBlackjackAction(gameState?.sessionId || "");
@@ -78,13 +81,22 @@ export default function BlackjackGame() {
                 description: `Payout: ${res.payout} ${res.currency}`,
                 className: "bg-success/20 text-success border-success/30",
               });
-            } else if (res.status === "push") {
-              toast({ title: "Push", description: "Bet refunded." });
+            } else if (res.status === "player_bust") {
+              toast({
+                title: "You Busted!",
+                description: "Better luck next time.",
+                variant: "destructive",
+              });
+            } else if (res.status === "dealer_bust") {
+              toast({
+                title: "Dealer Busted!",
+                description: `You win! Payout: ${res.payout} ${res.currency}`,
+                className: "bg-success/20 text-success border-success/30",
+              });
             } else {
               toast({
-                title: "You Lost",
-                description: "Dealer wins.",
-                variant: "destructive",
+                title: "Push",
+                description: "Your bet is returned.",
               });
             }
           }
@@ -100,156 +112,261 @@ export default function BlackjackGame() {
     );
   };
 
-  const renderCard = (card: string) => {
-    const isRed = card.includes("♥️") || card.includes("♦️");
-    return (
-      <div
-        key={card}
-        className="w-16 h-24 bg-white rounded-lg border border-gray-200 flex items-center justify-center shadow-lg shadow-black/50 transform transition-all hover:-translate-y-2"
-      >
-        <span
-          className={cn(
-            "text-2xl font-bold",
-            isRed ? "text-red-600" : "text-slate-900",
-          )}
-        >
-          {card}
-        </span>
-      </div>
-    );
+  const handleNewGame = () => {
+    setGameState(null);
   };
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
+      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+        {/* Player Balance Display - Compact Version */}
+        <PlayerBalance wallet={wallet} isLoading={isLoadingWallet} compact />
+
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Blackjack</h1>
-          <p className="text-muted-foreground mt-1">Beat the dealer to 21.</p>
+          <p className="text-muted-foreground mt-1">
+            Classic blackjack game. Beat the dealer without going over 21.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2 bg-[#0a2e1f] border-green-900 shadow-2xl relative overflow-hidden">
-            <CardContent className="p-8 min-h-[500px] flex flex-col justify-between relative z-10">
-              {!gameState ? (
-                <div className="flex-1 flex items-center justify-center text-green-700 font-bold text-4xl uppercase tracking-widest opacity-20 rotate-[-15deg]">
-                  Place your bet
+        {!isPlaying && !gameState ? (
+          // Setup Form
+          <Card className="bg-card border-border/50 shadow-md">
+            <CardContent className="pt-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Wager Amount
+                  </label>
+                  <Input
+                    type="number"
+                    value={wager}
+                    onChange={(e) => setWager(e.target.value)}
+                    className="w-full"
+                    placeholder="Enter wager"
+                  />
                 </div>
-              ) : (
-                <>
-                  {/* Dealer */}
-                  <div className="flex flex-col items-center space-y-4 mt-4">
-                    <div className="bg-black/40 px-4 py-1 rounded-full text-white/80 text-sm font-medium">
-                      Dealer:{" "}
-                      {gameState.status === "playing"
-                        ? "?"
-                        : gameState.dealerScore}
-                    </div>
-                    <div className="flex justify-center gap-2">
-                      {gameState.dealerCards.map(renderCard)}
-                    </div>
-                  </div>
 
-                  {/* Status Center */}
-                  <div className="py-8 flex justify-center">
-                    {gameState.status !== "playing" && (
-                      <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-xl border border-white/10 text-2xl font-black uppercase tracking-wider text-white shadow-2xl animate-in zoom-in duration-300">
-                        {gameState.status.replace("_", " ")}
-                      </div>
-                    )}
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Currency
+                  </label>
+                  <Select
+                    value={currency}
+                    onValueChange={(val: any) => setCurrency(val)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USDC">USDC</SelectItem>
+                      <SelectItem value="ETH">ETH</SelectItem>
+                      <SelectItem value="BTC">BTC</SelectItem>
+                      <SelectItem value="SOL">SOL</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-                  {/* Player */}
-                  <div className="flex flex-col items-center space-y-4 mb-4">
-                    <div className="flex justify-center gap-2">
-                      {gameState.playerCards.map(renderCard)}
-                    </div>
-                    <div className="bg-primary px-4 py-1 rounded-full text-white font-bold shadow-[0_0_10px_rgba(138,43,226,0.5)]">
-                      You: {gameState.playerScore}
-                    </div>
-                  </div>
-                </>
-              )}
+              <Button
+                onClick={handleStart}
+                disabled={startBlackjack.isPending}
+                className="w-full bg-primary hover:bg-primary/90"
+                size="lg"
+              >
+                {startBlackjack.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Deal Hand
+              </Button>
             </CardContent>
           </Card>
+        ) : gameState ? (
+          // Game State Display
+          <div className="space-y-6">
+            {/* Game Info */}
+            <Card className="bg-card border-border/50 shadow-md">
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Wager</p>
+                    <p className="text-lg font-bold">
+                      {gameState.wager} {gameState.currency}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Your Hand</p>
+                    <p className="text-lg font-bold text-blue-400">
+                      {gameState.playerTotal}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Dealer Showing
+                    </p>
+                    <p className="text-lg font-bold text-orange-400">
+                      {gameState.dealerShowing || "?"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Status</p>
+                    <p
+                      className={cn(
+                        "text-lg font-bold",
+                        gameState.status === "player_win" ||
+                          gameState.status === "blackjack"
+                          ? "text-success"
+                          : gameState.status === "player_bust"
+                            ? "text-destructive"
+                            : "text-primary",
+                      )}
+                    >
+                      {gameState.status === "player_win"
+                        ? "Won"
+                        : gameState.status === "blackjack"
+                          ? "Blackjack!"
+                          : gameState.status === "player_bust"
+                            ? "Bust"
+                            : gameState.status === "push"
+                              ? "Push"
+                              : "Playing"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card className="bg-card border-white/5 shadow-xl flex flex-col">
-            <CardContent className="p-6 flex-1 flex flex-col justify-center space-y-8">
-              {!isPlaying ? (
-                <>
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Bet Amount
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        value={wager}
-                        onChange={(e) => setWager(e.target.value)}
-                        className="bg-black/20 border-white/10 font-mono text-lg"
-                        disabled={isPlaying}
-                      />
-                      <Select
-                        value={currency}
-                        onValueChange={(v: any) => setCurrency(v)}
-                        disabled={isPlaying}
+            {/* Cards Display */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Player Cards */}
+              <Card className="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border-blue-500/30">
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-blue-300 mb-4">
+                    Your Hand
+                  </h3>
+                  <div className="grid grid-cols-4 gap-2 mb-4">
+                    {gameState.playerCards?.map((card: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="aspect-[2/3] bg-white rounded-lg flex items-center justify-center font-bold text-blue-900 text-lg"
                       >
-                        <SelectTrigger className="w-[100px] bg-black/20 border-white/10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="USDC">USDC</SelectItem>
-                          <SelectItem value="ETH">ETH</SelectItem>
-                          <SelectItem value="BTC">BTC</SelectItem>
-                          <SelectItem value="SOL">SOL</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        {card}
+                      </div>
+                    ))}
                   </div>
+                  <p className="text-2xl font-bold text-blue-400">
+                    Total: {gameState.playerTotal}
+                  </p>
+                </CardContent>
+              </Card>
 
-                  <Button
-                    className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(138,43,226,0.4)] transition-all hover:scale-[1.02]"
-                    onClick={handleStart}
-                    disabled={
-                      startBlackjack.isPending ||
-                      !wager ||
-                      parseFloat(wager) <= 0
-                    }
-                  >
-                    {startBlackjack.isPending ? (
-                      <Loader2 className="animate-spin h-6 w-6" />
-                    ) : (
-                      "Deal Cards"
-                    )}
-                  </Button>
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <Button
-                    className="w-full h-12 font-bold bg-success hover:bg-success/90 text-success-foreground"
-                    onClick={() => handleAction("hit")}
-                    disabled={blackjackAction.isPending}
-                  >
-                    HIT
-                  </Button>
-                  <Button
-                    className="w-full h-12 font-bold bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                    onClick={() => handleAction("stand")}
-                    disabled={blackjackAction.isPending}
-                  >
-                    STAND
-                  </Button>
-                  <Button
-                    className="w-full h-12 font-bold bg-accent hover:bg-accent/90 text-accent-foreground"
-                    onClick={() => handleAction("double")}
-                    disabled={blackjackAction.isPending}
-                  >
-                    DOUBLE DOWN
-                  </Button>
-                </div>
+              {/* Dealer Cards */}
+              <Card className="bg-gradient-to-br from-orange-900/30 to-orange-900/10 border-orange-500/30">
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-orange-300 mb-4">
+                    Dealer Hand
+                  </h3>
+                  <div className="grid grid-cols-4 gap-2 mb-4">
+                    {gameState.dealerCards?.map((card: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className={cn(
+                          "aspect-[2/3] rounded-lg flex items-center justify-center font-bold text-lg",
+                          isPlaying && idx === 1
+                            ? "bg-gray-800 text-gray-600"
+                            : "bg-white text-orange-900",
+                        )}
+                      >
+                        {isPlaying && idx === 1 ? "?" : card}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-2xl font-bold text-orange-400">
+                    {isPlaying ? "?" : `Total: ${gameState.dealerTotal}`}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Action Buttons */}
+            {isPlaying && (
+              <Card className="bg-card border-border/50 shadow-md">
+                <CardContent className="pt-6">
+                  <div className="flex gap-4 flex-wrap">
+                    <Button
+                      onClick={() => handleAction("hit")}
+                      disabled={blackjackAction.isPending}
+                      variant="outline"
+                    >
+                      {blackjackAction.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Hit
+                    </Button>
+                    <Button
+                      onClick={() => handleAction("stand")}
+                      disabled={blackjackAction.isPending}
+                      variant="outline"
+                    >
+                      Stand
+                    </Button>
+                    <Button
+                      onClick={() => handleAction("double")}
+                      disabled={blackjackAction.isPending}
+                      variant="outline"
+                    >
+                      Double
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Payout Display */}
+            {gameState.status !== "playing" &&
+              gameState.payout !== undefined && (
+                <Card
+                  className={cn(
+                    "shadow-md",
+                    gameState.status === "player_win" ||
+                      gameState.status === "blackjack"
+                      ? "bg-success/10 border-success/30"
+                      : gameState.status === "player_bust"
+                        ? "bg-destructive/10 border-destructive/30"
+                        : "bg-card border-border/50",
+                  )}
+                >
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-sm text-muted-foreground mb-2">Payout</p>
+                    <p
+                      className={cn(
+                        "text-3xl font-bold",
+                        gameState.status === "player_win" ||
+                          gameState.status === "blackjack"
+                          ? "text-success"
+                          : gameState.status === "player_bust"
+                            ? "text-destructive"
+                            : "text-foreground",
+                      )}
+                    >
+                      {gameState.payout} {gameState.currency}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-        </div>
+
+            {/* New Game Button */}
+            {gameState.status !== "playing" && (
+              <Button
+                onClick={handleNewGame}
+                className="w-full bg-primary hover:bg-primary/90"
+                size="lg"
+              >
+                Play Again
+              </Button>
+            )}
+          </div>
+        ) : null}
       </div>
     </AppLayout>
   );

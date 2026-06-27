@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useState } from "react";
-import { usePlaySlots, getGetWalletQueryKey, getGetMyStatsQueryKey } from "@workspace/api-client-react";
+import { usePlaySlots, getGetWalletQueryKey, getGetMyStatsQueryKey, useGetWallet } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PlayerBalance from "@/components/PlayerBalance";
 
 interface SlotMachine {
   id: string;
@@ -116,6 +117,7 @@ export default function SlotsGame() {
   const [currency, setCurrency] = useState<"ETH" | "BTC" | "SOL" | "USDC">("USDC");
   const [reels, setReels] = useState<string[]>(["7️⃣", "7️⃣", "7️⃣"]);
   const [isSpinning, setIsSpinning] = useState(false);
+  const { data: wallet, isLoading: isLoadingWallet } = useGetWallet();
 
   const playSlots = usePlaySlots();
   const queryClient = useQueryClient();
@@ -183,6 +185,8 @@ export default function SlotsGame() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
+        <PlayerBalance wallet={wallet} isLoading={isLoadingWallet} compact />
+
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Slots</h1>
           <p className="text-muted-foreground mt-1">Pick a machine and spin for huge multipliers.</p>
